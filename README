@@ -1,0 +1,15 @@
+Rasterize webpage for screensaver
+
+phantomjs --ssl-protocol=tlsv1 --ignore-ssl-errors=true rasterize.js https://www.example.com/?some=thing image.png "1920px*1080px"
+
+INSTALLATION
+
+apt-get install xscreensaver phantomjs
+
+edit your .xscreensaver file for these settings
+- GL:                           glslideshow -root -duration 2 -zoom 100       \
+                                  -pan 1 -fade 0                            \n\
+
+Set your screensaver to load images from the wall directory
+
+Turn on the screensaver and watch it update
