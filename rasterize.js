@@ -1,5 +1,7 @@
 var fs = require('fs');
 var system = require('system');
+var spawn = require("child_process").spawn
+
 var page = require('webpage').create(),
     system = require('system'),
     address, output, size;
@@ -69,6 +71,7 @@ function renderLoop(output,cnt) {
         phantom.exit();
     } else if (cnt==1) {
         console.log('Valid cookie');
+        spawn('xscreensaver-command',['-lock']);
     }
     page.render(output);
     if (fs.exists('wall/' + output)) { fs.remove('wall/' + output); }
