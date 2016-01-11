@@ -5,8 +5,9 @@ var spawn = require("child_process").spawn
 var page = require('webpage').create(),
     system = require('system'),
     address, output, size;
+page.settings.resourceTimeout = 5000; // 5 seconds
 
-system.stdout.write('admin_user cookie: ');
+system.stderr.write('admin_user cookie: ');
 var admin_user = system.stdin.readLine();
 admin_user = admin_user.replace(/%2F/g,'/');
 admin_user = admin_user.replace(/%3A/g,':');
@@ -104,5 +105,5 @@ function renderLoop(output,cnt) {
 function makeError(output,msg) {
     var d = new Date()
     console.log(d.toString() + ' ' + msg);
-    spawn('convert',['-size','1920x1080','xc:black','-font','Palatino-Bold','-pointsize','32','-fill','red','-stroke','darkred','-draw','text 20,155 "'+msg+'"','wall/' + output]);
+    spawn('convert',['-size','1920x1080','xc:black','-font','Palatino-Bold','-pointsize','32','-fill','red','-stroke','darkred','-draw','text 20,155 "'+d.toString()+'"','-draw','text 20,200 "'+msg+'"','wall/' + output]);
 }
