@@ -70,8 +70,21 @@ if (system.args.length < 3 || system.args.length > 5) {
         }
     };
     page.onResourceError = function(resourceError) {
-        console.log("Resource error: " + resourceError.errorString);
-    }
+        system.stdout.writeLine('= onResourceError()');
+        system.stdout.writeLine('  - unable to load url: "' + resourceError.url + '"');
+        system.stdout.writeLine('  - error code: ' + resourceError.errorCode + ', description: ' + resourceError.errorString );
+    };
+    page.onError = function(msg, trace) {
+        system.stdout.writeLine('= onError()');
+        var msgStack = ['  ERROR: ' + msg];
+        if (trace) {
+            msgStack.push('  TRACE:');
+            trace.forEach(function(t) {
+                msgStack.push('    -> ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function + '")' : ''));
+            });
+        }
+        system.stdout.writeLine(msgStack.join('\n'));
+    };
     page.open(address, function (status) {
         if (status !== 'success') {
             makeError(output,'Unable to open the address: ' + status);
