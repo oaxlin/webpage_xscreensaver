@@ -57,28 +57,31 @@ if (system.args.length < 3 || system.args.length > 5) {
             return document.getElementsByName('admin_user').length == 0;
         });
         if (status !== 'success') {
-            console.log('Unable to load the address!');
-            phantom.exit(1);
+            makeError(output,'Unable to load the address: ' + status);
+	    page.reload();
         } else if (!loggedIn) {
-                console.log('Cookie has expired');
+            makeError(output,'Cookie expired');
+            phantom.exit(1);
         } else {
             renderLoop(output,1);
-            console.log('Page loaded');
+            var d = new Date()
+            console.log(d.toString() + " Page loaded");
         }
     };
     page.open(address, function (status) {
         if (status !== 'success') {
-            console.log('Unable to load the address!');
+            makeError(output,'Unable to open the address: ' + status);
             phantom.exit(1);
         } else {
             loggedIn = page.evaluate(function() {
                 return document.getElementsByName('admin_user').length == 0;
             });
             if (!loggedIn) {
-                console.log('Cookie has expired');
-                phantom.exit();
+                makeError(output,'Cookie expired');
+                phantom.exit(1);
             } else {
-                console.log('Valid cookie');
+                var d = new Date()
+                console.log(d.toString() + " Valid cookie");
                 spawn('xscreensaver-command',['-lock']);
             }
         }
@@ -92,9 +95,14 @@ function renderLoop(output,cnt) {
         fs.move(output,'wall/' + output);
         window.setTimeout(function(){renderLoop(output,2)},1000);
     } else {
-        var d = new Date()
-        console.log(d.toString() + " Could not render page");
+        makeError(output,'Could not render page, reloading');
         if (fs.exists('wall/' + output)) { fs.remove('wall/' + output); }
 	page.reload();
     }
+}
+
+function makeError(output,msg) {
+    var d = new Date()
+    console.log(d.toString() + ' ' + msg);
+    spawn('convert',['-size','1920x1080','xc:black','-font','Palatino-Bold','-pointsize','32','-fill','red','-stroke','darkred','-draw','text 20,155 "'+msg+'"','wall/' + output]);
 }
