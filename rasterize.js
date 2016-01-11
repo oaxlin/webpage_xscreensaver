@@ -73,6 +73,7 @@ function renderLoop(output,cnt) {
         console.log('Valid cookie');
         spawn('xscreensaver-command',['-lock']);
     }
+    phantom.addCookie(page.cookies[0]);
     page.render(output);
     if (fs.exists('wall/' + output)) { fs.remove('wall/' + output); }
     fs.move(output,'wall/' + output);
