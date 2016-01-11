@@ -52,30 +52,49 @@ if (system.args.length < 3 || system.args.length > 5) {
     if (system.args.length > 4) {
         page.zoomFactor = system.args[4];
     }
+    page.onLoadFinished = function(status) {
+        loggedIn = page.evaluate(function() {
+            return document.getElementsByName('admin_user').length == 0;
+        });
+        if (status !== 'success') {
+            console.log('Unable to load the address!');
+            phantom.exit(1);
+        } else if (!loggedIn) {
+                console.log('Cookie has expired');
+        } else {
+            renderLoop(output,1);
+            console.log('Page loaded');
+        }
+    };
     page.open(address, function (status) {
         if (status !== 'success') {
             console.log('Unable to load the address!');
             phantom.exit(1);
         } else {
-            renderLoop(output,1);
+            loggedIn = page.evaluate(function() {
+                return document.getElementsByName('admin_user').length == 0;
+            });
+            if (!loggedIn) {
+                console.log('Cookie has expired');
+                phantom.exit();
+            } else {
+                console.log('Valid cookie');
+                spawn('xscreensaver-command',['-lock']);
+            }
         }
     });
 }
 
 function renderLoop(output,cnt) {
-    loggedIn = page.evaluate(function() {
-        return document.getElementsByName('admin_user').length == 0;
-    });
-    if (!loggedIn && cnt == 1) {
-        console.log('Cookie has expired');
-        phantom.exit();
-    } else if (cnt==1) {
-        console.log('Valid cookie');
-        spawn('xscreensaver-command',['-lock']);
-    }
     phantom.addCookie(page.cookies[0]);
-    page.render(output);
-    if (fs.exists('wall/' + output)) { fs.remove('wall/' + output); }
-    fs.move(output,'wall/' + output);
-    window.setTimeout(function(){renderLoop(output,2)},1500);
+    if (page.render(output) && fs.exists(output)) {
+        if (fs.exists('wall/' + output)) { fs.remove('wall/' + output); }
+        fs.move(output,'wall/' + output);
+        window.setTimeout(function(){renderLoop(output,2)},1000);
+    } else {
+        var d = new Date()
+        console.log(d.toString() + " Could not render page");
+        if (fs.exists('wall/' + output)) { fs.remove('wall/' + output); }
+	page.reload();
+    }
 }
