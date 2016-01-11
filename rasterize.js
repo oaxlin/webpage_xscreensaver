@@ -24,7 +24,7 @@ if (system.args.length < 3 || system.args.length > 5) {
     output = system.args[2];
     domain = address.match(/\/[^\/]+/)[0].replace('/','');
 
-    phantom.addCookie({
+    page.addCookie({
         "name": "admin_user",
         "value": admin_user,
         "domain": domain
@@ -69,6 +69,9 @@ if (system.args.length < 3 || system.args.length > 5) {
             console.log(d.toString() + " Page loaded");
         }
     };
+    page.onResourceError = function(resourceError) {
+        console.log("Resource error: " + resourceError.errorString);
+    }
     page.open(address, function (status) {
         if (status !== 'success') {
             makeError(output,'Unable to open the address: ' + status);
