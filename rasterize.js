@@ -1,17 +1,22 @@
 var fs = require('fs');
 var system = require('system');
-var spawn = require("child_process").spawn
+var spawn = require("child_process").spawn;
 
-var page = require('webpage').create(),
-    system = require('system'),
-    address, output, size;
-page.settings.resourceTimeout = 5000; // 5 seconds
+var timer;
+var page;
+var address;
+var output;
+var size;
 
-system.stderr.write('admin_user cookie: ');
-var admin_user = system.stdin.readLine();
+if (fs.exists("wall_cookie.txt")) {
+    admin_user = fs.read("wall_cookie.txt");
+} else {
+    system.stderr.write('admin_user cookie: ');
+    admin_user = system.stdin.readLine();
+}
 admin_user = admin_user.replace(/%2F/g,'/');
 admin_user = admin_user.replace(/%3A/g,':');
-admin_user = admin_user.replace(/[\r\n]/g,'');
+admin_user = admin_user.replace(/[\r\n\s]+$/g,'');
 
 if (system.args.length < 3 || system.args.length > 5) {
     console.log('Usage: rasterize.js URL filename [paperwidth*paperheight|paperformat] [zoom]');
@@ -20,11 +25,20 @@ if (system.args.length < 3 || system.args.length > 5) {
     console.log('                                   "800px*600px" window, clipped to 800x600');
     phantom.exit(1);
 } else {
+    initPage();
+}
+
+function initPage() {
+    page = require('webpage').create(),
+        system = require('system'),
+        address, output, size;
+    page.settings.resourceTimeout = 5000; // 5 seconds
+
     address = system.args[1];
     output = system.args[2];
     domain = address.match(/\/[^\/]+/)[0].replace('/','');
 
-    page.addCookie({
+    phantom.addCookie({
         "name": "admin_user",
         "value": admin_user,
         "domain": domain
@@ -58,11 +72,12 @@ if (system.args.length < 3 || system.args.length > 5) {
             return document.getElementsByName('admin_user').length == 0;
         });
         if (status !== 'success') {
-            makeError(output,'Unable to load the address: ' + status);
-	    page.reload();
+            makeError(output,'Unable to load the address: ' + status,0);
         } else if (!loggedIn) {
-            makeError(output,'Cookie expired');
-            phantom.exit(1);
+            if (fs.exists("wall_cookie.txt")) {
+                fs.remove("wall_cookie.txt");
+            }
+            makeError(output,'Cookie expired',1);
         } else {
             renderLoop(output,1);
             var d = new Date()
@@ -87,15 +102,16 @@ if (system.args.length < 3 || system.args.length > 5) {
     };
     page.open(address, function (status) {
         if (status !== 'success') {
-            makeError(output,'Unable to open the address: ' + status);
-            phantom.exit(1);
+            makeError(output,'Unable to open the address: ' + status,0);
         } else {
             loggedIn = page.evaluate(function() {
                 return document.getElementsByName('admin_user').length == 0;
             });
             if (!loggedIn) {
-                makeError(output,'Cookie expired');
-                phantom.exit(1);
+                if (fs.exists("wall_cookie.txt")) {
+                    fs.remove("wall_cookie.txt");
+                }
+                makeError(output,'Cookie expired',1);
             } else {
                 var d = new Date()
                 console.log(d.toString() + " Valid cookie");
@@ -107,19 +123,20 @@ if (system.args.length < 3 || system.args.length > 5) {
 
 function renderLoop(output,cnt) {
     phantom.addCookie(page.cookies[0]);
+    admin_user = page.cookies[0].value;
+    fs.write("wall_cookie.txt", admin_user, 'w');
     if (page.render(output) && fs.exists(output)) {
         if (fs.exists('wall/' + output)) { fs.remove('wall/' + output); }
         fs.move(output,'wall/' + output);
-        window.setTimeout(function(){renderLoop(output,2)},1000);
+        timer = window.setTimeout(function(){renderLoop(output,2)},1000);
     } else {
-        makeError(output,'Could not render page, reloading');
-        if (fs.exists('wall/' + output)) { fs.remove('wall/' + output); }
-	page.reload();
+        makeError(output,'Could not render page',0);
     }
 }
 
-function makeError(output,msg) {
+function makeError(output,msg,code) {
     var d = new Date()
     console.log(d.toString() + ' ' + msg);
     spawn('convert',['-size','1920x1080','xc:black','-font','Palatino-Bold','-pointsize','32','-fill','red','-stroke','darkred','-draw','text 20,155 "'+d.toString()+'"','-draw','text 20,200 "'+msg+'"','wall/' + output]);
+    phantom.exit(code); // 0 should be safe to restart automatically, anything else means auto restart will likely fail
 }

@@ -13,3 +13,5 @@ edit your .xscreensaver file for these settings
 Set your screensaver to load images from the wall directory
 
 Turn on the screensaver and watch it update
+
+Sadly, phantomjs seems to have memory/file handle issues with long running javascript pages.  So ideally you will want to run this similar to the example.batch file.  Doing so will automatically restart anytime phantomjs crashes with a memory issue.
