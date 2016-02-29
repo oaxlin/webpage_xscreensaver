@@ -137,7 +137,7 @@ function renderLoop(output,cnt) {
         phantom.addCookie(page.cookies[0]);
         admin_user = page.cookies[0].value;
         fs.write("/dev/shm/wall_cookie.txt", admin_user, 'w');
-        if (page.render('/dev/shm/' + output, {format: 'gif'}) && fs.exists(output)) {
+        if (page.render('/dev/shm/' + output, {format: 'gif'}) && fs.exists('/dev/shm/' + output)) {
             if (fs.exists('/dev/shm/wall/' + output)) { fs.remove('/dev/shm/wall/' + output); }
             fs.move('/dev/shm/' + output,'/dev/shm/wall/' + output);
         } else {
