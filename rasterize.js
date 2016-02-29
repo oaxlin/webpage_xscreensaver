@@ -7,6 +7,8 @@ var page;
 var address;
 var output;
 var size;
+var last_request = 0;
+var new_request = 1;
 
 if (fs.exists("wall_cookie.txt")) {
     admin_user = fs.read("wall_cookie.txt");
@@ -74,8 +76,8 @@ function initPage() {
         if (status !== 'success') {
             makeError(output,'Unable to load the address: ' + status,0);
         } else if (!loggedIn) {
-            if (fs.exists("wall_cookie.txt")) {
-                fs.remove("wall_cookie.txt");
+            if (fs.exists("/dev/shm/wall_cookie.txt")) {
+                fs.remove("/dev/shm/wall_cookie.txt");
             }
             makeError(output,'Cookie expired',1);
         } else {
@@ -108,8 +110,8 @@ function initPage() {
                 return document.getElementsByName('admin_user').length == 0;
             });
             if (!loggedIn) {
-                if (fs.exists("wall_cookie.txt")) {
-                    fs.remove("wall_cookie.txt");
+                if (fs.exists("/dev/shm/wall_cookie.txt")) {
+                    fs.remove("/dev/shm/wall_cookie.txt");
                 }
                 makeError(output,'Cookie expired',1);
             } else {
@@ -122,15 +124,29 @@ function initPage() {
 }
 
 function renderLoop(output,cnt) {
-    phantom.addCookie(page.cookies[0]);
-    admin_user = page.cookies[0].value;
-    fs.write("wall_cookie.txt", admin_user, 'w');
-    if (page.render(output) && fs.exists(output)) {
-        if (fs.exists('wall/' + output)) { fs.remove('wall/' + output); }
-        fs.move(output,'wall/' + output);
-        timer = window.setTimeout(function(){renderLoop(output,2)},1000);
-    } else {
-        makeError(output,'Could not render page',0);
+    if (cnt == 1) {
+        var foo = page.evaluate(function() {
+            // override the normal delay
+            update_wallboard("/cgi-bin/util/cardservice/card_service?skip_wrapper=1",3);
+        });
+    }
+    new_request = page.evaluate(function() { return document.last_request["/cgi-bin/util/cardservice/card_service?skip_wrapper=1"]; });
+    tf = 1;
+    if (last_request < new_request) {
+        last_request = new_request;
+        phantom.addCookie(page.cookies[0]);
+        admin_user = page.cookies[0].value;
+        fs.write("/dev/shm/wall_cookie.txt", admin_user, 'w');
+        if (page.render('/dev/shm/' + output, {format: 'gif'}) && fs.exists(output)) {
+            if (fs.exists('/dev/shm/wall/' + output)) { fs.remove('/dev/shm/wall/' + output); }
+            fs.move('/dev/shm/' + output,'/dev/shm/wall/' + output);
+        } else {
+            tf = 0;
+            makeError(output,'Could not render page',0);
+        }
+    }
+    if (tf == 1) {
+        timer = window.setTimeout(function(){renderLoop(output,2)},500);
     }
 }
 
