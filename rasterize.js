@@ -7,18 +7,28 @@ var page;
 var address;
 var output;
 var size;
+var ini;
 var last_request = 0;
+var whichkey = -1;
+var next_switch;
 var new_request = 1;
+var admin_user;
 
-if (fs.exists("wall_cookie.txt")) {
-    admin_user = fs.read("wall_cookie.txt");
+if (fs.exists("wall.ini")) {
+    ini = parseINIString(fs.read("wall.ini"));
+    console.log('wall.ini found, URL from arg list will be ignored');
 } else {
-    system.stderr.write('admin_user cookie: ');
-    admin_user = system.stdin.readLine();
+    ini['url'] = [600,system.args[1]];
 }
-admin_user = admin_user.replace(/%2F/g,'/');
-admin_user = admin_user.replace(/%3A/g,':');
-admin_user = admin_user.replace(/[\r\n\s]+$/g,'');
+if (fs.exists("wall_cookie.txt")) {
+    ini['admin_user'] = fs.read("wall_cookie.txt");
+}
+if (ini['admin_user']) {
+    // make it so a copied cookie from Chrome (with %XX escape characters) will work
+    ini['admin_user'] = ini['admin_user'].replace(/%2F/g,'/');
+    ini['admin_user'] = ini['admin_user'].replace(/%3A/g,':');
+    ini['admin_user'] = ini['admin_user'].replace(/[\r\n\s]+$/g,'');
+}
 
 if (system.args.length < 3 || system.args.length > 5) {
     console.log('Usage: rasterize.js URL filename [paperwidth*paperheight|paperformat] [zoom]');
@@ -27,18 +37,24 @@ if (system.args.length < 3 || system.args.length > 5) {
     console.log('                                   "800px*600px" window, clipped to 800x600');
     phantom.exit(1);
 } else {
+    admin_user = ini['admin_user'];
     initPage();
 }
 
 function initPage() {
+    whichkey = whichkey + 1;
+    if (! ini['url'][whichkey]) { whichkey = 0; }
     page = require('webpage').create(),
         system = require('system'),
         address, output, size;
     page.settings.resourceTimeout = 5000; // 5 seconds
+    var d = new Date()
+    next_switch = (d.getTime() / 1000) + Number(ini['url'][whichkey][0]); // epoch
 
-    address = system.args[1];
+    address = ini['url'][whichkey][1];
     output = system.args[2];
     domain = address.match(/\/[^\/]+/)[0].replace('/','');
+    last_request = 0;
 
     phantom.addCookie({
         "name": "admin_user",
@@ -81,7 +97,6 @@ function initPage() {
             }
             makeError(output,'Cookie expired',1);
         } else {
-            renderLoop(output,1);
             var d = new Date()
             console.log(d.toString() + " Page loaded");
         }
@@ -117,6 +132,7 @@ function initPage() {
             } else {
                 var d = new Date()
                 console.log(d.toString() + " Valid cookie");
+                renderLoop(output,1);
                 spawn('xscreensaver-command',['-lock']);
             }
         }
@@ -127,19 +143,24 @@ function renderLoop(output,cnt) {
     if (cnt == 1) {
         var foo = page.evaluate(function() {
             // override the normal delay
-            update_wallboard("/cgi-bin/util/cardservice/card_service?skip_wrapper=1",3);
+            update_wallboard(Object.keys(document.last_request)[0],3);
         });
     }
-    new_request = page.evaluate(function() { return document.last_request["/cgi-bin/util/cardservice/card_service?skip_wrapper=1"]; });
+    new_request = page.evaluate(function() { return document.last_request[Object.keys(document.last_request)[0]]; });
     tf = 1;
     if (last_request < new_request) {
         last_request = new_request;
         phantom.addCookie(page.cookies[0]);
         admin_user = page.cookies[0].value;
-        fs.write("/dev/shm/wall_cookie.txt", admin_user, 'w');
+        fs.write("wall_cookie.txt", admin_user, 'w');
         if (page.render('/dev/shm/' + output, {format: 'gif'}) && fs.exists('/dev/shm/' + output)) {
             if (fs.exists('/dev/shm/wall/' + output)) { fs.remove('/dev/shm/wall/' + output); }
             fs.move('/dev/shm/' + output,'/dev/shm/wall/' + output);
+            if (new Date().getTime() / 1000 > next_switch) {
+                page.close;
+                tf = 0;
+                initPage();
+            }
         } else {
             tf = 0;
             makeError(output,'Could not render page',0);
@@ -155,4 +176,27 @@ function makeError(output,msg,code) {
     console.log(d.toString() + ' ' + msg);
     spawn('convert',['-size','1920x1080','xc:black','-font','Palatino-Bold','-pointsize','32','-fill','red','-stroke','darkred','-draw','text 20,155 "'+d.toString()+'"','-draw','text 20,200 "'+msg+'"','wall/' + output]);
     phantom.exit(code); // 0 should be safe to restart automatically, anything else means auto restart will likely fail
+}
+
+function parseINIString(data){
+    var regex = {
+        param: /^\s*([\w\.\-\_]+)\s*=\s*(.*?)\s*$/,
+        comment: /^\s*;.*$/
+    };
+    var value = {};
+    var lines = data.split(/\r\n|\r|\n/);
+    var section = null;
+    var urltime = 600;
+    value['url'] = [];
+    lines.forEach(function(line){
+        var match = line.match(regex.param);
+        if (match && match[1] == 'time') {
+            urltime = match[2];
+        } else if (match && match[1] == 'url') {
+            value['url'].push([urltime,match[2]]);
+        } else if (match && match[1] == 'admin_user') {
+            value['admin_user'] = match[2];
+        };
+    });
+    return value;
 }

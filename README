@@ -20,6 +20,12 @@ FONT TIPS
 sudo ln -s /etc/fonts/conf.avail/10-autohint.conf /etc/fonts/conf.d/
 ; reboot (sudo init 6)
 
-sudo dpkg-reconfigure fontconfig-config                                                                
-sudo dpkg-reconfigure fontconfig
-sudo fc-cache -fv
+sudo dpkg-reconfigure fontconfig-config && sudo dpkg-reconfigure fontconfig && sudo fc-cache -fv
+
+Instead of passing the URL at command line, you can create a "wall.ini" file to have the script cycle through multiple URLs
+
+example file
+time=60
+https://www.example.com
+time=20
+https://www.fred.com/script.cgi?arg=1&arg=2
