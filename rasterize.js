@@ -62,6 +62,7 @@ function initPage() {
         "domain": domain
     });
 
+    page.zoomFactor = ini['url'][whichkey][2];
     page.viewportSize = { width: 600, height: 600 };
     if (system.args.length > 3 && system.args[2].substr(-4) === ".pdf") {
         size = system.args[3].split('*');
@@ -81,9 +82,6 @@ function initPage() {
             console.log ("pageHeight:",pageHeight);
             page.viewportSize = { width: pageWidth, height: pageHeight };
         }
-    }
-    if (system.args.length > 4) {
-        page.zoomFactor = system.args[4];
     }
     page.onLoadFinished = function(status) {
         loggedIn = page.evaluate(function() {
@@ -187,13 +185,19 @@ function parseINIString(data){
     var lines = data.split(/\r\n|\r|\n/);
     var section = null;
     var urltime = 600;
+    var zoom_factor = 1;
+    if (system.args.length > 4) {
+        zoom_factor = system.args[4];
+    }
     value['url'] = [];
     lines.forEach(function(line){
         var match = line.match(regex.param);
         if (match && match[1] == 'time') {
             urltime = match[2];
+        } else if (match && match[1] == 'zoom') {
+            zoom_factor = match[2];
         } else if (match && match[1] == 'url') {
-            value['url'].push([urltime,match[2]]);
+            value['url'].push([urltime,match[2],zoom_factor]);
         } else if (match && match[1] == 'admin_user') {
             value['admin_user'] = match[2];
         };
