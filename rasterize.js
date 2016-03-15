@@ -14,14 +14,20 @@ var next_switch;
 var new_request = 1;
 var admin_user;
 
-if (fs.exists("wall.ini")) {
-    ini = parseINIString(fs.read("wall.ini"));
-    console.log('wall.ini found, URL from arg list will be ignored');
+// on linux systems you can use fbi (frame buffer interface) do display the rendered image
+// I found the following command works nicely (and sends log data to syslog)
+//
+// nice -n 19 phantomjs --cookies-file=wall_cookies.txt rasterize.js https://example.com/some.gif wall_tmp.gif "1920px*1080px" 1.0 2>&1 | logger -t wall_phantomjs
+//
+
+if (fs.exists("/home/wallboard/wall.ini")) {
+    ini = parseINIString(fs.read("/home/wallboard/wall.ini"));
+    console.log('/home/wallboard/wall.ini found, URL from arg list will be ignored');
 } else {
     ini['url'] = [600,system.args[1]];
 }
-if (fs.exists("wall_cookie.txt")) {
-    ini['admin_user'] = fs.read("wall_cookie.txt");
+if (fs.exists("/home/wallboard/wall_cookie.txt")) {
+    ini['admin_user'] = fs.read("/home/wallboard/wall_cookie.txt");
 }
 if (ini['admin_user']) {
     // make it so a copied cookie from Chrome (with %XX escape characters) will work
@@ -150,10 +156,9 @@ function renderLoop(output,cnt) {
         last_request = new_request;
         phantom.addCookie(page.cookies[0]);
         admin_user = page.cookies[0].value;
-        fs.write("wall_cookie.txt", admin_user, 'w');
+        fs.write("/home/wallboard/wall_cookie.txt", admin_user, 'w');
         if (page.render('/dev/shm/' + output, {format: 'gif'}) && fs.exists('/dev/shm/' + output)) {
-            if (fs.exists('/dev/shm/wall/' + output)) { fs.remove('/dev/shm/wall/' + output); }
-            fs.move('/dev/shm/' + output,'/dev/shm/wall/' + output);
+            spawn('/bin/mv',['/dev/shm/' + output,'/dev/shm/wall/' + output]); // fbi doesn't like copied files, it will occasionally crash if you use cp
             if (new Date().getTime() / 1000 > next_switch) {
                 page.close;
                 tf = 0;
