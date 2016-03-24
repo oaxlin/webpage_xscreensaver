@@ -94,7 +94,7 @@ function initPage() {
             if (typeof document.body.bgColor != 'undefined') {
                 document.body.bgColor = 'white';
             }
-        }
+        });
         loggedIn = page.evaluate(function() {
             return document.getElementsByName('admin_user').length == 0;
         });
