@@ -90,16 +90,21 @@ function initPage() {
         }
     }
     page.onLoadFinished = function(status) {
+        page.evaluate(function() {
+            if (typeof document.body.bgColor != 'undefined') {
+                document.body.bgColor = 'white';
+            }
+        }
         loggedIn = page.evaluate(function() {
             return document.getElementsByName('admin_user').length == 0;
         });
         if (status !== 'success') {
-            makeError(output,'Unable to load the address: ' + status,0);
+            makeError(output,'Unable to load the address: ' + status,1);
         } else if (!loggedIn) {
             if (fs.exists("/dev/shm/wall_cookie.txt")) {
                 fs.remove("/dev/shm/wall_cookie.txt");
             }
-            makeError(output,'Cookie expired',1);
+            makeError(output,'Cookie expired',2);
         } else {
             var d = new Date()
             console.log(d.toString() + " Page loaded");
@@ -123,7 +128,7 @@ function initPage() {
     };
     page.open(address, function (status) {
         if (status !== 'success') {
-            makeError(output,'Unable to open the address: ' + status,0);
+            makeError(output,'Unable to open the address: ' + status,1);
         } else {
             loggedIn = page.evaluate(function() {
                 return document.getElementsByName('admin_user').length == 0;
@@ -132,7 +137,7 @@ function initPage() {
                 if (fs.exists("/dev/shm/wall_cookie.txt")) {
                     fs.remove("/dev/shm/wall_cookie.txt");
                 }
-                makeError(output,'Cookie expired',1);
+                makeError(output,'Cookie expired',2);
             } else {
                 var d = new Date()
                 console.log(d.toString() + " Valid cookie");
@@ -166,7 +171,7 @@ function renderLoop(output,cnt) {
             }
         } else {
             tf = 0;
-            makeError(output,'Could not render page',0);
+            makeError(output,'Could not render page',4);
         }
     }
     if (tf == 1) {
