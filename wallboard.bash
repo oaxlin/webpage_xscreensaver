@@ -9,6 +9,11 @@ function updatemyip {
     MYIP=`echo -n mac:\`/sbin/ifconfig eth0 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' | sed 's/\s\+/ /g' | cut -d' ' -f5,7\``;
 }
 
+function make_img {
+    convert -size 1920x1080 -background black -fill white -font Helvetica -pointsize 50 -draw "text 40,70 `echo -n \\"$1\\"`" /home/pi/webpage_xscreensaver/comingsoon.gif /dev/shm/wall_tmp.gif
+    mv -f /dev/shm/wall_tmp.gif /dev/shm/wall/wall_tmp.gif
+}
+
 function restart_fbi {
     sudo killall fbi 2> /dev/null
     sudo /usr/bin/fbi -a -t 1 -cachemem 0 -noverbose -T 1 -d /dev/fb0 /dev/shm/wall/*.gif | logger -t wall_fbi &
@@ -27,7 +32,19 @@ ln -s /dev/shm/wall/wall_tmp.gif /dev/shm/wall/wall_tmp3.gif 2> /dev/null
 restart_fbi
 
 # show mac and address on the screen while we wait for the wallboard to load
+re='[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+';
+maxTries=20;
 updatemyip
+while [[ $maxTries -gt 0 && !($MYIP =~ $re) ]]; do
+    if [ $maxTries -eq 20 ]; then
+       echo "No valid IP found: $MYIP";
+       make_img "$MYIP"
+    fi
+    let maxTries=maxTries-1;
+    updatemyip
+    sleep 0.5;
+done
+echo $MYIP;
 convert -size 1920x1080 -background black -fill white -font Helvetica -pointsize 50 -draw "text 40,70 `echo -n \\"$MYIP\\"`" /home/pi/webpage_xscreensaver/comingsoon.gif /dev/shm/wall_tmp.gif
 mv -f /dev/shm/wall_tmp.gif /dev/shm/wall/wall_tmp.gif
 
