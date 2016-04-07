@@ -31,3 +31,18 @@ url=https://www.example.com
 time=20
 url=https://www.fred.com/script.cgi?arg=1&arg=2
 ```
+
+## /boot/config.txt
+
+I've had success on several TVs with these settings
+```
+overscan_left=-46
+overscan_right=-46
+overscan_top=-46
+overscan_bottom=-46
+disable_overscan=0
+gpu_mem=128
+hdmi_drive=2
+hdmi_group=1
+hdmi_mode=4
+```
