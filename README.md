@@ -8,7 +8,7 @@ Install your favorite linux pi flavor.  I used debian.
 
 ```
 sudo raspi-config; ## Boot Options - console, and login required 
-sudo apt-get install imagemagick git
+sudo apt-get install imagemagick git fbi
 sudo apt-get install ttf-mscorefonts-installer ttf-liberation fonts-liberation
 sudo apt-get install fonts-uralic ttf-root-installer ttf-freefont fonts-linuxlibertine ttf-staypuft
 sudo ln -s /etc/fonts/conf.avail/10-autohint.conf /etc/fonts/conf.d/
