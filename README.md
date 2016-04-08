@@ -46,3 +46,11 @@ hdmi_drive=2
 hdmi_group=1
 hdmi_mode=4
 ```
+
+## /etc/kbd/config
+
+Prevent screen sleep
+```
+BLANK_TIME=0
+POWERDOWN_TIME=0
+```
