@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#hopefully prevent screen blank
-sudo sh -c "TERM=linux setterm -powerdown 0 -powersave off -blank 0 >/dev/tty0"
+#kill any previous versions
 sudo killall -o 3s do.bash 2> /dev/null
 sudo killall phantomjs 2> /dev/null
 
@@ -51,7 +50,11 @@ mv -f /dev/shm/wall_tmp.gif /dev/shm/wall/wall_tmp.gif
 # pages load very slowly if we enable ipv6
 sudo sh -c 'echo 1 > /proc/sys/net/ipv6/conf/eth0/disable_ipv6' 
 
+#hopefully prevent screen blank
+sudo sh -c "TERM=linux setterm -powerdown 0 -powersave off -blank 0 >/dev/tty0"
+
 while [ 0 -eq 0 ]; do
+    restart_fbi
     OUTLONG='Unknown'
     OUT=0
     set -o pipefail; # allows me to get the error code from phantomjs rather than logger
