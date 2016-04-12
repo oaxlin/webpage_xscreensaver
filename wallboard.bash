@@ -5,11 +5,12 @@ sudo killall -o 3s do.bash 2> /dev/null
 sudo killall phantomjs 2> /dev/null
 
 function updatemyip {
-    MYIP=`echo -n mac:\`/sbin/ifconfig eth0 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' | sed 's/\s\+/ /g' | cut -d' ' -f5,7\``;
+    MYDEV=`echo -n \`/sbin/ifconfig | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' | sed 's/\s\+/ /g' | cut -d' ' -f1\``;
+    MYIP=`echo -n mac:\`/sbin/ifconfig | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' | sed 's/\s\+/ /g' | cut -d' ' -f5,7\``;
 }
 
 function make_img {
-    convert -size 1920x1080 -background black -fill white -font Helvetica -pointsize 50 -draw "text 40,70 `echo -n \\"$1\\"`" /home/pi/webpage_xscreensaver/comingsoon.gif /dev/shm/wall_tmp.gif
+    echo -e $1 | convert -size 1920x1080 -background black -fill white -font Helvetica -pointsize 50 label:@- /dev/shm/wall_tmp.gif
     mv -f /dev/shm/wall_tmp.gif /dev/shm/wall/wall_tmp.gif
 }
 
@@ -44,11 +45,13 @@ while [[ $maxTries -gt 0 && !($MYIP =~ $re) ]]; do
     sleep 0.5;
 done
 echo $MYIP;
-convert -size 1920x1080 -background black -fill white -font Helvetica -pointsize 50 -draw "text 40,70 `echo -n \\"$MYIP\\"`" /home/pi/webpage_xscreensaver/comingsoon.gif /dev/shm/wall_tmp.gif
-mv -f /dev/shm/wall_tmp.gif /dev/shm/wall/wall_tmp.gif
+make_img "$MYIP"
 
-# pages load very slowly if we enable ipv6
-sudo sh -c 'echo 1 > /proc/sys/net/ipv6/conf/eth0/disable_ipv6' 
+# some pages load very slowly if ipv6 is enabled
+# for some reason the sysctl doesn't work
+# /etc/sysctl.conf
+# net.ipv6.conf.all.disable_ipv6 = 1
+sudo sh -c "echo 1 > /proc/sys/net/ipv6/conf/$MYDEV/disable_ipv6" 
 
 #hopefully prevent screen blank
 sudo sh -c "TERM=linux setterm -powerdown 0 -powersave off -blank 0 >/dev/tty0"
