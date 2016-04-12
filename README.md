@@ -44,7 +44,7 @@ disable_overscan=0
 gpu_mem=128
 hdmi_drive=2
 hdmi_group=1
-hdmi_mode=4
+hdmi_mode=16
 ```
 
 ## /etc/kbd/config
