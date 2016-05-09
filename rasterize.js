@@ -67,7 +67,10 @@ var steps = [
       }
       err_cnt = 0;
       if (document.getElementsByName(form_name).length != 1) {
-        console.log("Could not find form_name (" + form_name + ")");
+        if (document.getElementsByName(form_pass_field).length == 1) {
+          // Avoid scaring people, only warn if we find the password field
+          console.log("Could not find form_name (" + form_name + ")");
+        }
         return 0; //They are logged it (or the name is spelled wrong)
       }
       if (document.getElementsByName(form_pass_field).length != 1) {
