@@ -57,7 +57,7 @@ var steps = [
       err_cnt = 0;
       if (document.getElementsByName(form_name).length != 1) {
         console.log("Could not find form_name (" + form_name + ")");
-        err_cnt = 1;
+        return 0; //They are logged it (or the name is spelled wrong)
       }
       if (document.getElementsByName(form_pass_field).length != 1) {
         console.log("Could not find form_pass_field (" + form_pass_field + ")");
@@ -68,11 +68,14 @@ var steps = [
         err_cnt = 1;
       }
       if (err_cnt > 0) {
-        makeError('Invalid wall.ini form settings',5);
+        return 2;
       }
       return 1;
     }, me['form_name'], me['form_user_field'], me['form_pass_field']);
     if ( passRequired ) {
+      if ( passRequired == 2 ) {
+        makeError('Invalid wall.ini form settings',5);
+      }
       if ( typeof me['form_pass_file'] != 'undefined' && typeof me['form_pass'] == 'undefined' ) {
         if ( fs.exists(me['form_pass_file']) ) {
           console.log('Loading password from file: ' + me['form_pass_file']);
