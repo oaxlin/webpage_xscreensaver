@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ $EUID -ne 0 ]]; then
+  echo "You must be a root user" 2>&1
+  exit 1
+fi
+
 #kill any previous versions
 sudo killall -o 3s do.bash 2> /dev/null
 sudo killall phantomjs 2> /dev/null
