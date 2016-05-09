@@ -7,6 +7,17 @@ var renderInterval;
 var ini = parseINIString(fs.read("/home/pi/webpage_xscreensaver/wall.ini"));
 var page = new WebPage(), testindex = 0, loadInProgress = false;
 
+// the phantom default cookie handling sucks, for some reason it deletes
+// valid cookies, so we manually save a last know "good" copy on each
+// successful load and try to read it in case the default way borked
+var last_cookies_file = "/dev/shm/wall_cookies_success.txt";
+if(fs.exists(last_cookies_file)) {
+  var last_cookies = fs.read(last_cookies_file);
+  JSON.parse(last_cookies).forEach(function(arg,i) {
+    phantom.addCookie(arg);
+  });
+}
+
 pageWidth = 1920;
 pageHeight = 1080;
 page.viewportSize = { width: pageWidth, height: pageHeight };
@@ -138,9 +149,10 @@ function renderLoop(cnt) {
       if ( page.render('/dev/shm/wall_tmp.gif', {format: 'gif'}) && fs.exists('/dev/shm/wall_tmp.gif')) {
         spawn('/bin/mv',['/dev/shm/wall_tmp.gif','/dev/shm/wall/wall_tmp.gif']); // fbi doesn't like copied files, it will occasionally crash if you use cp
         oldContent = newContent;
+        fs.write(last_cookies_file,JSON.stringify(phantom.cookies),'w');
       } else {
         tf = 0;
-        makeError('Could not render page',3);
+        makeError('Could not render page: ' + JSON.stringify(page),3);
       }
     }
   } 
