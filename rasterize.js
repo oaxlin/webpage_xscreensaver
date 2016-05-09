@@ -90,7 +90,7 @@ var steps = [
       if ( typeof me['form_pass_file'] != 'undefined' && typeof me['form_pass'] == 'undefined' ) {
         if ( fs.exists(me['form_pass_file']) ) {
           console.log('Loading password from file: ' + me['form_pass_file']);
-	  me['form_pass'] = fs.read(me['form_pass_file']);
+          me['form_pass'] = fs.read(me['form_pass_file']);
           spawn('/bin/rm',[me['form_pass_file']]); // remove the file
         }
       }
@@ -99,7 +99,7 @@ var steps = [
         if ( me['form_pass_file'] ) {
           e = e + "\n\nPassword file not found:\n" + me['form_pass_file'];
         }
-	makeError(e,4);
+        makeError(e,4);
       }
       me['form_pass_attempted'] = 1;
       testindex = 0; // try again
@@ -150,6 +150,12 @@ function renderLoop(cnt) {
         spawn('/bin/mv',['/dev/shm/wall_tmp.gif','/dev/shm/wall/wall_tmp.gif']); // fbi doesn't like copied files, it will occasionally crash if you use cp
         oldContent = newContent;
         fs.write(last_cookies_file,JSON.stringify(phantom.cookies),'w');
+      } else if (cnt < 5) {
+        // It's possible to get here on comples javascript only pages
+        // give the page sufficient time to (hopefully) render before giving up
+        renderInterval = window.setTimeout(function(){renderLoop(cnt+1)},1000);
+        console.log('Unable to render page, waiting 1 second and trying again.');
+        return;
       } else {
         tf = 0;
         makeError('Could not render page: ' + JSON.stringify(page),3);
