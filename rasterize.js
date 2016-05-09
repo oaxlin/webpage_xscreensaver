@@ -50,14 +50,28 @@ var steps = [
       // make sure we don't keep retrying the same password over and over
       delete me['form_pass'];
     }
-    passRequired = page.evaluate(function(form_name,form_user_field) {
-      var arr = document.getElementsByName(form_name);
-      if (arr.length > 0 && arr[0].getAttribute('method') == "POST" && document.getElementsByName(form_user_field).length) {
-        return 1;
-      } else {
+    passRequired = page.evaluate(function(form_name,form_user_field,form_pass_field) {
+      if (!form_name && !form_user_field) {
         return 0;
       }
-    }, me['form_name'], me['form_user_field']);
+      err_cnt = 0;
+      if (document.getElementsByName(form_name).length != 1) {
+        console.log("Could not find form_name (" + form_name + ")");
+        err_cnt = 1;
+      }
+      if (document.getElementsByName(form_pass_field).length != 1) {
+        console.log("Could not find form_pass_field (" + form_pass_field + ")");
+        err_cnt = 1;
+      }
+      if (document.getElementsByName(form_user_field).length != 1) {
+        console.log("Could not find form_user_field (" + form_user_field + ")");
+        err_cnt = 1;
+      }
+      if (err_cnt > 0) {
+        makeError('Invalid wall.ini form settings',5);
+      }
+      return 1;
+    }, me['form_name'], me['form_user_field'], me['form_pass_field']);
     if ( passRequired ) {
       if ( typeof me['form_pass_file'] != 'undefined' && typeof me['form_pass'] == 'undefined' ) {
         if ( fs.exists(me['form_pass_file']) ) {
