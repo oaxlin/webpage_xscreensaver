@@ -73,6 +73,7 @@ while [ 0 -eq 0 ]; do
     [ $OUT -eq 3 ] && OUTLONG='Could not render image from page';
     [ $OUT -eq 4 ] && OUTLONG='Password is required';
     [ $OUT -eq 5 ] && OUTLONG='Invalid form information in wall.ini';
+    [ $OUT -eq 6 ] && OUTLONG='Uncaught javascript error on page';
     updatemyip
     restart_fbi
     echo -e "\n $MYIP\n\n wallboard died with error code $OUT ($OUTLONG)\n\n Attempting to recover, if this message stays up for longer than one minute.\n Please turn off the TV for 5 seconds then turn it back on to restart the wallboard." | convert -size 1920x1080 -background black -fill white -font Helvetica -pointsize 50 label:@- /dev/shm/wall_tmp.gif
