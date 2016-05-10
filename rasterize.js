@@ -152,7 +152,9 @@ function renderLoop(cnt) {
       if ( page.render('/dev/shm/wall_tmp.gif', {format: 'gif'}) && fs.exists('/dev/shm/wall_tmp.gif')) {
         spawn('/bin/mv',['/dev/shm/wall_tmp.gif','/dev/shm/wall/wall_tmp.gif']); // fbi doesn't like copied files, it will occasionally crash if you use cp
         oldContent = newContent;
-        fs.write(last_cookies_file,JSON.stringify(phantom.cookies),'w');
+        if (phantom.cookies.length > 0) {
+          fs.write(last_cookies_file,JSON.stringify(phantom.cookies),'w');
+        }
       } else if (cnt < 5) {
         // It's possible to get here on comples javascript only pages
         // give the page sufficient time to (hopefully) render before giving up
