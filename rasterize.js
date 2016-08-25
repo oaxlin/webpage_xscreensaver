@@ -137,6 +137,7 @@ var steps = [
 ];
 
 function initPage() {
+  oldContent = '';
   pageCnt = pageCnt + 1;
   if ( ! ini['url'][pageCnt] ) { pageCnt = 0 }
   testindex = 0;
