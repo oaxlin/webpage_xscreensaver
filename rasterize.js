@@ -123,11 +123,10 @@ var steps = [
       testindex = 0; // try again
       if ( me['form_pass'] ) {
         page.evaluate(function(form_name,form_user_field,form_pass_field,form_user,form_pass,form_pass_field) {
-          var arr = document.getElementsByName(form_name);
           console.log('Login page found, logging in');
           document.getElementsByName(form_user_field)[0].value = form_user;
           document.getElementsByName(form_pass_field)[0].value = form_pass;
-          arr[0].submit();
+          document.getElementsByName(form_name)[0].submit();
         }, me['form_name'], me['form_user_field'], me['form_pass_field'], me['form_user'], me['form_pass'], me['form_pass_field']);
       }
       return;
