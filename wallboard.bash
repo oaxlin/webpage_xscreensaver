@@ -15,13 +15,13 @@ function updatemyip {
 }
 
 function make_img {
-    echo -e $1 | convert -size 1920x1080 -background black -fill white -font Helvetica -pointsize 50 label:@- /dev/shm/wall_tmp.gif
-    mv -f /dev/shm/wall_tmp.gif /dev/shm/wall/wall_tmp.gif
+    echo -e $1 | convert -size 1920x1080 -background black -fill white -font Helvetica -pointsize 50 label:@- /dev/shm/wall_tmp.jpg
+    mv -f /dev/shm/wall_tmp.jpg /dev/shm/wall/wall_tmp.jpg
 }
 
 function restart_fbi {
     sudo killall fbi 2> /dev/null
-    sudo /usr/bin/fbi -a -t 1 -cachemem 0 -noverbose -T 1 -d /dev/fb0 /dev/shm/wall/*.gif | logger -t wall_fbi &
+    sudo /usr/bin/fbi -a -t 1 -cachemem 0 -noverbose -T 1 -d /dev/fb0 /dev/shm/wall/*.jpg | logger -t wall_fbi &
 }
 
 while [ ! -d /dev/shm/wall ]
@@ -31,9 +31,10 @@ do
 done
 
 # fbi needs 3 images to not cache, links work great for this
-cp /home/pi/webpage_xscreensaver/comingsoon.gif /dev/shm/wall/wall_tmp.gif
-ln -s /dev/shm/wall/wall_tmp.gif /dev/shm/wall/wall_tmp2.gif 2> /dev/null
-ln -s /dev/shm/wall/wall_tmp.gif /dev/shm/wall/wall_tmp3.gif 2> /dev/null
+cp /home/pi/webpage_xscreensaver/comingsoon.gif /dev/shm/wall/wall_tmp.jpg
+ln -s /dev/shm/wall/wall_tmp.jpg /dev/shm/wall/wall_tmp2.jpg 2> /dev/null
+ln -s /dev/shm/wall/wall_tmp.jpg /dev/shm/wall/wall_tmp3.jpg 2> /dev/null
+rm -f /dev/shm/wall/wall_tmp*.gif # remove old gif files if they exist
 restart_fbi
 
 # show mac and address on the screen while we wait for the wallboard to load
@@ -66,7 +67,7 @@ while [ 0 -eq 0 ]; do
     OUTLONG='Unknown'
     OUT=0
     set -o pipefail; # allows me to get the error code from phantomjs rather than logger
-    nice -n 19 /home/pi/phantomjs-raspberrypi/bin/phantomjs --cookies-file=/dev/shm/wall_cookies.txt --ssl-protocol=tlsv1 --ignore-ssl-errors=true /home/pi/webpage_xscreensaver/rasterize.js https://i.bluehost.com/cgi-bin/util/cardservice?step=card_service wall_tmp.gif "1920px*1080px" 1.0 2>&1
+    nice -n 19 /home/pi/phantomjs-raspberrypi/bin/phantomjs --cookies-file=/dev/shm/wall_cookies.txt --ssl-protocol=tlsv1 --ignore-ssl-errors=true /home/pi/webpage_xscreensaver/rasterize.js https://i.bluehost.com/cgi-bin/util/cardservice?step=card_service wall_tmp.jpg "1920px*1080px" 1.0 2>&1
     OUT=$?
     [ $OUT -eq 1 ] && OUTLONG='Could not load page';
     [ $OUT -eq 2 ] && OUTLONG='Cookie expired';
@@ -76,7 +77,7 @@ while [ 0 -eq 0 ]; do
     [ $OUT -eq 6 ] && OUTLONG='Uncaught javascript error on page';
     updatemyip
     restart_fbi
-    echo -e "\n $MYIP\n\n wallboard died with error code $OUT ($OUTLONG)\n\n Attempting to recover, if this message stays up for longer than one minute.\n Please turn off the TV for 5 seconds then turn it back on to restart the wallboard." | convert -size 1920x1080 -background black -fill white -font Helvetica -pointsize 50 label:@- /dev/shm/wall_tmp.gif
-    mv -f /dev/shm/wall_tmp.gif /dev/shm/wall/wall_tmp.gif
+    echo -e "\n $MYIP\n\n wallboard died with error code $OUT ($OUTLONG)\n\n Attempting to recover, if this message stays up for longer than one minute.\n Please turn off the TV for 5 seconds then turn it back on to restart the wallboard." | convert -size 1920x1080 -background black -fill white -font Helvetica -pointsize 50 label:@- /dev/shm/wall_tmp.jpg
+    mv -f /dev/shm/wall_tmp.jpg /dev/shm/wall/wall_tmp.jpg
     sleep 10; # give a little bit of time before we attempt recovery
 done
