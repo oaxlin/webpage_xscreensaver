@@ -2,6 +2,7 @@ var fs = require('fs');
 var system = require('system');
 var spawn = require("child_process").spawn;
 var next_switch;
+var rerender_timer;
 var renderInterval;
 
 var ini = parseINIString(fs.read("/home/pi/webpage_xscreensaver/wall.ini"));
@@ -155,17 +156,18 @@ function initPage() {
 initPage();
 
 function renderLoop(cnt) {
+  var d = new Date();
   if (cnt <= 0) {
-    var d = new Date();
     next_switch = (d.getTime() / 1000) + (Number(ini['url'][pageCnt]['urltime']) || 60); // epoch
     console.log('rendering ' + page.url);
   }
   tf = 1;
   newContent = page.content;
-  if (newContent != oldContent) {
+  if ((d.getTime() > rerender_timer) || newContent != oldContent) {
     if (cnt > 0) {
-      if ( page.render('/dev/shm/wall_tmp.gif', {format: 'gif'}) && fs.exists('/dev/shm/wall_tmp.gif')) {
-        spawn('/bin/mv',['/dev/shm/wall_tmp.gif','/dev/shm/wall/wall_tmp.gif']); // fbi doesn't like copied files, it will occasionally crash if you use cp
+      if ( page.render('/dev/shm/wall_tmp.jpg', {format: 'jpeg'}) && fs.exists('/dev/shm/wall_tmp.jpg')) {
+        rerender_timer = d.getTime() + ((Number(ini['url'][pageCnt]['softrefresh']) || 900)*1000);
+        spawn('/bin/mv',['/dev/shm/wall_tmp.jpg','/dev/shm/wall/wall_tmp.jpg']); // fbi doesn't like copied files, it will occasionally crash if you use cp
         oldContent = newContent;
         if (phantom.cookies.length > 0) {
           fs.write(last_cookies_file,JSON.stringify(phantom.cookies),'w');
@@ -182,7 +184,7 @@ function renderLoop(cnt) {
       }
     }
   } 
-  if (new Date().getTime() / 1000 > next_switch) {
+  if (d.getTime() / 1000 > next_switch) {
     page.close;
     tf = 0;
     initPage();
@@ -198,9 +200,9 @@ function makeError(msg,code) {
   var d = new Date()
   page.close;
   console.log(d.toString() + ' ' + msg);
-  con = spawn('convert',['-size','1920x1080','xc:black','-font','Palatino-Bold','-pointsize','32','-fill','red','-stroke','darkred','-draw','text 20,155 "'+d.toString()+'"','-draw','text 20,200 "'+msg+'"','/dev/shm/wall_tmp.gif']);
+  con = spawn('convert',['-size','1920x1080','xc:black','-font','Palatino-Bold','-pointsize','32','-fill','red','-stroke','darkred','-draw','text 20,155 "'+d.toString()+'"','-draw','text 20,200 "'+msg+'"','/dev/shm/wall_tmp.jpg']);
   con.on('exit', function (c) {
-    spawn('/bin/mv',['/dev/shm/wall_tmp.gif','/dev/shm/wall/wall_tmp.gif']); // fbi doesn't like copied files, it will occasionally crash if you use cp
+    spawn('/bin/mv',['/dev/shm/wall_tmp.jpg','/dev/shm/wall/wall_tmp.jpg']); // fbi doesn't like copied files, it will occasionally crash if you use cp
     console.log("exit code: " + code);
     phantom.exit(code);
   });
@@ -220,6 +222,8 @@ function parseINIString(data){
     if (match) {
       if (match[1] == 'time') {
         local['urltime'] = match[2];
+      } else if (match[1] == 'softrefresh') {
+        local['softrefresh'] = match[2];
       } else if (match[1] == 'zoom') {
         local['zoom'] = match[2];
       } else if (match[1] == 'url') {

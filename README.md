@@ -13,8 +13,12 @@ sudo apt-get install ttf-mscorefonts-installer ttf-liberation fonts-liberation
 sudo apt-get install fonts-uralic ttf-root-installer ttf-freefont fonts-linuxlibertine ttf-staypuft
 sudo ln -s /etc/fonts/conf.avail/10-autohint.conf /etc/fonts/conf.d/
 sudo dpkg-reconfigure fontconfig-config && sudo dpkg-reconfigure fontconfig && sudo fc-cache -fv
-git clone https://github.com/piksel/phantomjs-raspberrypi.git
+git clone https://github.com/shabadoo75/phantomjs-2.1.1-raspberrypi-armv7.git
+mkdir -p phantomjs-raspberrypi/bin
+ln -s phantomjs-2.1.1-raspberrypi-armv7/phantomjs phantomjs-raspberrypi/bin/phantomjs
 git clone https://github.com/oaxlin/webpage_xscreensaver.git
+wget http://http.us.debian.org/debian/pool/main/i/icu/libicu52_52.1-8+deb8u5_armhf.deb
+sudo dpkg -i libicu52_52.1-8+deb8u5_armhf.deb
 ```
 reboot (sudo init 6)
 
@@ -54,3 +58,4 @@ Prevent screen sleep
 BLANK_TIME=0
 POWERDOWN_TIME=0
 ```
+
