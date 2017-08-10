@@ -184,7 +184,7 @@ function renderLoop(cnt) {
       }
     }
   } 
-  if (new d.getTime() / 1000 > next_switch) {
+  if (d.getTime() / 1000 > next_switch) {
     page.close;
     tf = 0;
     initPage();
