@@ -15,10 +15,10 @@ sudo ln -s /etc/fonts/conf.avail/10-autohint.conf /etc/fonts/conf.d/
 sudo dpkg-reconfigure fontconfig-config && sudo dpkg-reconfigure fontconfig && sudo fc-cache -fv
 git clone https://github.com/shabadoo75/phantomjs-2.1.1-raspberrypi-armv7.git
 mkdir -p phantomjs-raspberrypi/bin
-ln -s phantomjs-2.1.1-raspberrypi-armv7/phantomjs phantomjs-raspberrypi/bin/phantomjs
+ln -s /home/pi/phantomjs-2.1.1-raspberrypi-armv7/phantomjs /home/pi/phantomjs-raspberrypi/bin/phantomjs
 git clone https://github.com/oaxlin/webpage_xscreensaver.git
-wget http://http.us.debian.org/debian/pool/main/i/icu/libicu52_52.1-8+deb8u5_armhf.deb
-sudo dpkg -i libicu52_52.1-8+deb8u5_armhf.deb
+wget http://security.debian.org/debian-security/pool/updates/main/i/icu/libicu48_4.8.1.1-12+deb7u7_armhf.deb
+sudo dpkg -i libicu48_4.8.1.1-12+deb7u7_armhf.deb
 ```
 reboot (sudo init 6)
 
