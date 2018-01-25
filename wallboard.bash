@@ -67,7 +67,7 @@ while [ 0 -eq 0 ]; do
     OUTLONG='Unknown'
     OUT=0
     set -o pipefail; # allows me to get the error code from phantomjs rather than logger
-    nice -n 19 /home/pi/phantomjs-raspberrypi/bin/phantomjs --cookies-file=/dev/shm/wall_cookies.txt --ssl-protocol=tlsv1 --ignore-ssl-errors=true /home/pi/webpage_xscreensaver/rasterize.js https://i.bluehost.com/cgi-bin/util/cardservice?step=card_service wall_tmp.jpg "1920px*1080px" 1.0 2>&1
+    nice -n 19 /home/pi/phantomjs-raspberrypi/bin/phantomjs --cookies-file=/dev/shm/wall_cookies.txt --ignore-ssl-errors=true /home/pi/webpage_xscreensaver/rasterize.js https://i.bluehost.com/cgi-bin/util/cardservice?step=card_service wall_tmp.jpg "1920px*1080px" 1.0 2>&1
     OUT=$?
     [ $OUT -eq 1 ] && OUTLONG='Could not load page';
     [ $OUT -eq 2 ] && OUTLONG='Cookie expired';
