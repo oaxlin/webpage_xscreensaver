@@ -15,7 +15,8 @@ function updatemyip {
 }
 
 function make_img {
-    echo -e $1 | convert -size 1920x1080 -background black -fill white -font Helvetica -pointsize 50 label:@- /dev/shm/wall_tmp.jpg
+    echo -e "text 115,215 \"$1\"" > /dev/shm/ip.txt
+    convert -size 1920x1080 xc:black -font "Helvetica" -pointsize 60 -fill white -draw @/dev/shm/ip.txt /dev/shm/wall_tmp.jpg
     mv -f /dev/shm/wall_tmp.jpg /dev/shm/wall/wall_tmp.jpg
 }
 
