@@ -4,10 +4,14 @@ phantomjs --ssl-protocol=tlsv1 --ignore-ssl-errors=true rasterize.js
 
 ## INSTALLATION
 
-Install your favorite linux pi flavor.  I used debian.
+Install your favorite linux pi flavor.  I used ubuntu mate.
 
 ```
-sudo raspi-config; ## Boot Options - console, and login required 
+sudo systemctl set-default multi-user.target --force
+sudo systemctl disable lightdm.service --force
+sudo systemctl disable graphical.target --force
+sudo systemctl disable plymouth.service --force
+sudo systemctl enable ssh
 sudo apt-get install imagemagick git fbi
 sudo apt-get install ttf-mscorefonts-installer ttf-liberation fonts-liberation
 sudo apt-get install fonts-uralic ttf-root-installer ttf-freefont fonts-linuxlibertine ttf-staypuft
@@ -15,10 +19,16 @@ sudo ln -s /etc/fonts/conf.avail/10-autohint.conf /etc/fonts/conf.d/
 sudo dpkg-reconfigure fontconfig-config && sudo dpkg-reconfigure fontconfig && sudo fc-cache -fv
 git clone https://github.com/shabadoo75/phantomjs-2.1.1-raspberrypi-armv7.git
 mkdir -p phantomjs-raspberrypi/bin
-ln -s /home/pi/phantomjs-2.1.1-raspberrypi-armv7/phantomjs /home/pi/phantomjs-raspberrypi/bin/phantomjs
+ln -s /home/pi/phantomjs-2.1.1-raspberrypi-armv7/wheezy/phantomjs /home/pi/phantomjs-raspberrypi/bin/phantomjs
 git clone https://github.com/oaxlin/webpage_xscreensaver.git
 wget http://security.debian.org/debian-security/pool/updates/main/i/icu/libicu48_4.8.1.1-12+deb7u7_armhf.deb
 sudo dpkg -i libicu48_4.8.1.1-12+deb7u7_armhf.deb
+sudo cp webpage_xscreensaver/wallboard.init /etc/init.d/wallboard
+sudo ln -s /etc/init.d/wallboard /etc/rc3.d/S05wallboard
+sudo ln -s /etc/init.d/wallboard /etc/rc2.d/S05wallboard
+sudo ln -s /etc/init.d/wallboard /etc/rc4.d/S05wallboard
+sudo ln -s /etc/init.d/wallboard /etc/rc5.d/S05wallboard
+sudo service wallboard enable
 ```
 reboot (sudo init 6)
 
