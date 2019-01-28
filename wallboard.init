@@ -1,0 +1,26 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:             wallboard
+# Required-Start:       $remote_fs $syslog $network $all
+# Required-Stop:        $remote_fs $syslog $network
+# Default-Start:        2 3 4 5
+# Default-Stop:         
+# Short-Description:    OpenBSD Secure Shell server
+### END INIT INFO
+
+
+case "$1" in
+  start)
+        sleep 10;
+        /usr/bin/git -C ~/webpage_xscreensaver/ pull >/dev/null
+        /home/pi/webpage_xscreensaver/wallboard.bash | logger -t wall_init &
+        ;;
+  stop)
+        killall wallboard.bash
+        killall phantomjs
+        ;;
+
+esac
+
+exit 0
