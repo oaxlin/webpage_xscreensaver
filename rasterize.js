@@ -185,6 +185,7 @@ function renderLoop(cnt) {
     }
   } 
   if (d.getTime() / 1000 > next_switch) {
+    page.clearMemoryCache();
     page.close;
     tf = 0;
     initPage();
