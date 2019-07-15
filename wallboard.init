@@ -13,7 +13,7 @@
 case "$1" in
   start)
         sleep 10;
-        /usr/bin/git -C ~/webpage_xscreensaver/ pull >/dev/null
+        /usr/bin/git -C /home/pi/webpage_xscreensaver/ pull >/dev/null
         /home/pi/webpage_xscreensaver/wallboard.bash | logger -t wall_init &
         ;;
   stop)
