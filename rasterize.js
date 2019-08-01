@@ -7,6 +7,7 @@ var renderInterval;
 
 var ini = parseINIString(fs.read("/home/pi/webpage_xscreensaver/wall.ini"));
 var page = new WebPage(), testindex = 0, loadInProgress = false;
+var quit_timer = new Date().getTime() + ((Number(ini['url'][0]['restart']) || 86400)*1000);
 
 // the phantom default cookie handling sucks, for some reason it deletes
 // valid cookies, so we manually save a last know "good" copy on each
@@ -163,6 +164,11 @@ function renderLoop(cnt) {
   }
   tf = 1;
   newContent = page.content;
+  if (d.getTime() > quit_timer) {
+    // just in case of memory leaks, allow us to restart phantomjs once in a while
+    console.log('Shutting down, restart timer exceeded');
+    phantom.exit(0);
+  }
   if ((d.getTime() > rerender_timer) || newContent != oldContent) {
     if (cnt > 0) {
       if ( page.render('/dev/shm/wall_tmp.jpg', {format: 'jpeg'}) && fs.exists('/dev/shm/wall_tmp.jpg')) {
@@ -225,6 +231,8 @@ function parseINIString(data){
         local['urltime'] = match[2];
       } else if (match[1] == 'softrefresh') {
         local['softrefresh'] = match[2];
+      } else if (match[1] == 'restart') {
+        local['restart'] = match[2];
       } else if (match[1] == 'zoom') {
         local['zoom'] = match[2];
       } else if (match[1] == 'url') {
