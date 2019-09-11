@@ -7,7 +7,7 @@ fi
 
 #kill any previous versions
 sudo killall -o 3s do.bash 2> /dev/null
-sudo killall phantomjs 2> /dev/null
+sudo killall puppeteer_rasterize.js 2> /dev/null
 
 function updatemyip {
     MYDEV=`echo -n \`/sbin/ifconfig | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' | sed 's/\s\+/ /g' | cut -d' ' -f1\``;
@@ -64,12 +64,14 @@ sudo sh -c "echo 1 > /proc/sys/net/ipv6/conf/$MYDEV/disable_ipv6"
 #hopefully prevent screen blank
 sudo sh -c "TERM=linux setterm -powerdown 0 -powersave off -blank 0 >/dev/tty0"
 
+cd /home/pi/webpage_xscreensaver/
 while [ 0 -eq 0 ]; do
     restart_fbi
     OUTLONG='Unknown'
     OUT=0
     set -o pipefail; # allows me to get the error code from phantomjs rather than logger
-    nice -n 19 /home/pi/phantomjs-raspberrypi/bin/phantomjs --cookies-file=/dev/shm/wall_cookies.txt --ignore-ssl-errors=true /home/pi/webpage_xscreensaver/rasterize.js https://i.bluehost.com/cgi-bin/util/cardservice?step=card_service wall_tmp.jpg "1920px*1080px" 1.0 2>&1
+    #nice -n 19 QT_QPA_PLATFORM=offscreen phantomjs --cookies-file=/dev/shm/wall_cookies.txt --ignore-ssl-errors=true /home/pi/webpage_xscreensaver/rasterize.js https://i.bluehost.com/cgi-bin/util/cardservice?step=card_service wall_tmp.jpg "1920px*1080px" 1.0 2>&1
+    nice -n 19 node puppeteer_rasterize.js
     OUT=$?
     [ $OUT -eq 1 ] && OUTLONG='Could not load page';
     [ $OUT -eq 2 ] && OUTLONG='Cookie expired';
