@@ -31,7 +31,7 @@ async function init_config() {
             local['softrefresh'] = parseInt(match[2]);
           } else if (match[1] == 'restart') {
             restart = parseInt(match[2]) * 1000;
-          } else if (match[1] == 'zoom') { // may not work?
+          } else if (match[1] == 'zoom') {
             local['zoom'] = parseFloat(match[2]);
           } else if (match[1] == 'url') {
             local['url'] = match[2];
