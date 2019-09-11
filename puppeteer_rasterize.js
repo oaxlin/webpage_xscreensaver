@@ -13,46 +13,46 @@ var config = [];
 var restart = 86400000; // reduce memory leak issues by restaring periodically
 
 async function init_config() {
-	var regex = {
-		param: /^\s*([\w\.\-\_]+)\s*=\s*(.*?)\s*$/,
-		comment: /^\s*;.*$/
-	};
-	var local = {
+    var regex = {
+        param: /^\s*([\w\.\-\_]+)\s*=\s*(.*?)\s*$/,
+        comment: /^\s*;.*$/
+    };
+    var local = {
         urltime: 60,
         softrefresh: 86400,
         zoom: 1,
     };
-	await readInterface.on('line', function(line) {
-		var match = line.match(regex.param);
-		if (match) {
-		  if (match[1] == 'time') {
-			local['urltime'] = parseInt(match[2]);
-		  } else if (match[1] == 'softrefresh') {
-			local['softrefresh'] = parseInt(match[2]);
-		  } else if (match[1] == 'restart') {
-			restart = parseInt(match[2]) * 1000;
-		  } else if (match[1] == 'zoom') { // may not work?
-			local['zoom'] = parseFloat(match[2]);
-		  } else if (match[1] == 'url') {
-			local['url'] = match[2];
-			config.push(local);
-			local = JSON.parse(JSON.stringify(local)); // clone the object
-		  } else if (match[1] == 'form_name') { // not supported
-			local['form_name'] = match[2];
-		  } else if (match[1] == 'form_user') { // not supported
-			local['form_user'] = match[2];
-		  } else if (match[1] == 'form_user_field') { // not supported
-			local['form_user_field'] = match[2];
-		  } else if (match[1] == 'form_pass_field') { // not supported
-			local['form_pass_field'] = match[2];
-		  } else if (match[1] == 'form_pass_file') { // not supported
-			local['form_pass_file'] = match[2];
-		  } else if (match[1] == 'form_pass') { // not supported
-			local['form_pass'] = match[2];
-		  };
-		};
-	}).on('close', function() {;
-		console.log('Finished loading configs:',config);
+    await readInterface.on('line', function(line) {
+        var match = line.match(regex.param);
+        if (match) {
+          if (match[1] == 'time') {
+            local['urltime'] = parseInt(match[2]);
+          } else if (match[1] == 'softrefresh') {
+            local['softrefresh'] = parseInt(match[2]);
+          } else if (match[1] == 'restart') {
+            restart = parseInt(match[2]) * 1000;
+          } else if (match[1] == 'zoom') { // may not work?
+            local['zoom'] = parseFloat(match[2]);
+          } else if (match[1] == 'url') {
+            local['url'] = match[2];
+            config.push(local);
+            local = JSON.parse(JSON.stringify(local)); // clone the object
+          } else if (match[1] == 'form_name') { // not supported
+            local['form_name'] = match[2];
+          } else if (match[1] == 'form_user') { // not supported
+            local['form_user'] = match[2];
+          } else if (match[1] == 'form_user_field') { // not supported
+            local['form_user_field'] = match[2];
+          } else if (match[1] == 'form_pass_field') { // not supported
+            local['form_pass_field'] = match[2];
+          } else if (match[1] == 'form_pass_file') { // not supported
+            local['form_pass_file'] = match[2];
+          } else if (match[1] == 'form_pass') { // not supported
+            local['form_pass'] = match[2];
+          };
+        };
+    }).on('close', function() {;
+        console.log('Finished loading configs:',config);
     })
 }
 
@@ -62,9 +62,9 @@ async function do_exit() {
 }
 
 async function run(cnt) {
-	await page.evaluate((custom_screen_zoom) => {
+    await page.evaluate((custom_screen_zoom) => {
         document.body.style.zoom=custom_screen_zoom
-	},config[cnt].zoom);
+    },config[cnt].zoom);
     await page.screenshot({ path: '/dev/shm/wall_tmp.jpg', fullPage: true })
     fs.rename('/dev/shm/wall_tmp.jpg', '/dev/shm/wall/wall_tmp.jpg', function(err) {} )
     console.log('image render completed');
