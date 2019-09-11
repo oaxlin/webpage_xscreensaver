@@ -75,6 +75,8 @@ async function init_page(cnt) {
     if (cnt >= config.length) { cnt = 0 }
     clearInterval(capture_page);
     console.log('Loading config:',config[cnt].url);
+    await page.close();
+    page = await browser.newPage()
     await page.setViewport({ width: 1920, height: 1080 })
     await page.goto(config[cnt].url, {
         waitUntil: 'networkidle2',
