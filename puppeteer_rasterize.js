@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 const readline = require('readline');
 const readInterface = readline.createInterface({
@@ -65,8 +65,8 @@ async function run(cnt) {
 	await page.evaluate((custom_screen_zoom) => {
         document.body.style.zoom=custom_screen_zoom
 	},config[cnt].zoom);
-    await page.screenshot({ path: 'example.png', fullPage: true })
-    fs.rename('example.png', 'example2.png', function(err) {} )
+    await page.screenshot({ path: '/dev/shm/wall_tmp.jpg', fullPage: true })
+    fs.rename('/dev/shm/wall_tmp.jpg', '/dev/shm/wall/wall_tmp.jpg', function(err) {} )
     console.log('image render completed');
     capture_page = setTimeout(run, config[cnt].softrefresh * 1000, cnt);
 }
@@ -85,6 +85,7 @@ async function init_page(cnt) {
 async function init_puppeteer() {
     browser = await puppeteer.launch({
        headless: true,
+       executablePath:'/usr/bin/chromium-browser',
        args: [
            '--no-sandbox',
            '--disable-setuid-sandbox',
