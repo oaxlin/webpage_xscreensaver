@@ -76,7 +76,10 @@ async function init_page(cnt) {
     clearInterval(capture_page);
     console.log('Loading config:',config[cnt].url);
     await page.setViewport({ width: 1920, height: 1080 })
-    await page.goto(config[cnt].url);
+    await page.goto(config[cnt].url, {
+        waitUntil: 'networkidle2',
+        timeout: 30000000
+    });
     console.log('init page completed');
     setTimeout(init_page, config[cnt].urltime * 1000, cnt+1);
     run(cnt);
