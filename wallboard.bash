@@ -69,9 +69,9 @@ while [ 0 -eq 0 ]; do
     restart_fbi
     OUTLONG='Unknown'
     OUT=0
-    set -o pipefail; # allows me to get the error code from phantomjs rather than logger
+    set -o pipefail; # allows me to get the error code from my script rather than logger
     #nice -n 19 QT_QPA_PLATFORM=offscreen phantomjs --cookies-file=/dev/shm/wall_cookies.txt --ignore-ssl-errors=true /home/pi/webpage_xscreensaver/rasterize.js https://i.bluehost.com/cgi-bin/util/cardservice?step=card_service wall_tmp.jpg "1920px*1080px" 1.0 2>&1
-    nice -n 19 node puppeteer_rasterize.js
+    nice -n 19 node puppeteer_rasterize.js 2>&1
     OUT=$?
     [ $OUT -eq 1 ] && OUTLONG='Could not load page';
     [ $OUT -eq 2 ] && OUTLONG='Cookie expired';
