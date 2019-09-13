@@ -18,7 +18,7 @@ case "$1" in
         ;;
   stop)
         killall wallboard.bash
-        killall phantomjs
+        pkill -f 'node puppeteer_rasterize.js'
         ;;
 
 esac

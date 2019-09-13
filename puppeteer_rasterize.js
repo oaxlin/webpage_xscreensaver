@@ -21,6 +21,7 @@ async function init_config() {
         urltime: 60,
         softrefresh: 86400,
         zoom: 1,
+        init_page_delay: 0.5, // how many seconds does this page take to finish "loading"
     };
     await readInterface.on('line', function(line) {
         var match = line.match(regex.param);
@@ -33,6 +34,8 @@ async function init_config() {
             restart = parseInt(match[2]) * 1000;
           } else if (match[1] == 'zoom') {
             local['zoom'] = parseFloat(match[2]);
+          } else if (match[1] == 'init_page_delay') {
+            local['init_page_delay'] = parseFloat(match[2]);
           } else if (match[1] == 'url') {
             local['url'] = match[2];
             config.push(local);
@@ -83,8 +86,20 @@ async function init_page(cnt) {
         timeout: 30000000
     });
     console.log('init page completed');
-    setTimeout(init_page, config[cnt].urltime * 1000, cnt+1);
-    run(cnt);
+    setTimeout(init_page2, config[cnt].init_page_delay * 1000, cnt, Math.round(config[cnt].init_page_delay));
+}
+
+async function init_page2(cnt,loop) {
+    ready = await page.evaluate((ready) => document.readyState);
+    // give a page up to 90 seconds to mark itself as done loading
+console.log('ready:',ready,loop);
+    if (loop > 90 || ready === 'complete') {
+        setTimeout(init_page, config[cnt].urltime * 1000, cnt+1);
+        run(cnt);
+    } else {
+        // wait one second then check again
+        setTimeout(init_page2, 1000, cnt, loop+1);
+    }
 }
 
 async function init_puppeteer() {

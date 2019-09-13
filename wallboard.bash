@@ -7,7 +7,7 @@ fi
 
 #kill any previous versions
 sudo killall -o 3s do.bash 2> /dev/null
-sudo killall puppeteer_rasterize.js 2> /dev/null
+sudo pkill -f 'node puppeteer_rasterize.js' 2> /dev/null
 
 function updatemyip {
     MYDEV=`echo -n \`/sbin/ifconfig | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' | sed 's/\s\+/ /g' | cut -d' ' -f1\``;
