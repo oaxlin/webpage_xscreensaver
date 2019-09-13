@@ -92,7 +92,6 @@ async function init_page(cnt) {
 async function init_page2(cnt,loop) {
     ready = await page.evaluate((ready) => document.readyState);
     // give a page up to 90 seconds to mark itself as done loading
-console.log('ready:',ready,loop);
     if (loop > 90 || ready === 'complete') {
         setTimeout(init_page, config[cnt].urltime * 1000, cnt+1);
         run(cnt);
