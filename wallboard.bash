@@ -66,6 +66,17 @@ sudo sh -c "TERM=linux setterm -powerdown 0 -powersave off -blank 0 >/dev/tty0"
 
 cd /home/pi/webpage_xscreensaver/
 while [ 0 -eq 0 ]; do
+    LASTpull=`stat -c %y .git/FETCH_HEAD | awk '{print $1}'`
+    DAYSpull=`date -d $LASTpull +"%j"`
+    DAYSnow=`date +"%j"`
+    DAYSdiff=$(($DAYSnow - $DAYSpull))
+    if [[ $DAYSdiff -ge 7 ]]; then
+        #update once a week
+        sudo apt update;sudo apt-get -y dist-upgrade;sudo apt -y autoremove
+        echo -n 'Checking for update: '
+        git pull
+    fi
+
     restart_fbi
     OUTLONG='Unknown'
     OUT=0
