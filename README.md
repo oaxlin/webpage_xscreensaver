@@ -1,10 +1,12 @@
 ## Rasterize webpage for screensaver
 
 phantomjs --ssl-protocol=tlsv1 --ignore-ssl-errors=true rasterize.js
+or
+node puppeteer_rasterize.js
 
 ## INSTALLATION
 
-Install your favorite linux pi flavor.  I used ubuntu mate.
+Install your favorite linux pi flavor.  I've used both raspian and ubuntu mate.
 
 ```
 sudo systemctl set-default multi-user.target --force
@@ -20,7 +22,6 @@ sudo dpkg-reconfigure fontconfig-config && sudo dpkg-reconfigure fontconfig && s
 git clone https://github.com/oaxlin/webpage_xscreensaver.git
 wget http://security.debian.org/debian-security/pool/updates/main/i/icu/libicu48_4.8.1.1-12+deb7u7_armhf.deb
 sudo dpkg -i libicu48_4.8.1.1-12+deb7u7_armhf.deb
-sudo ln -s /home/pi/webpage_xscreensaver/wallboard.init /etc/init.d/wallboard
 
 curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 sudo apt-get install -y nodejs
@@ -28,6 +29,7 @@ sudo apt-get install -y chromium-browser chromium-codecs-ffmpeg
 cd ~/webpage_xscreensaver
 npm i -S puppeteer-core
 
+sudo ln -s /home/pi/webpage_xscreensaver/wallboard.init /etc/init.d/wallboard
 sudo ln -s /etc/init.d/wallboard /etc/rc3.d/S05wallboard
 sudo ln -s /etc/init.d/wallboard /etc/rc2.d/S05wallboard
 sudo ln -s /etc/init.d/wallboard /etc/rc4.d/S05wallboard
