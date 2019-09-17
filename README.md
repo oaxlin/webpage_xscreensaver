@@ -24,7 +24,7 @@ sudo cp webpage_xscreensaver/wallboard.init /etc/init.d/wallboard
 
 curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 sudo apt-get install -y nodejs
-sudo apt install chromium-browser chromium-codecs-ffmpeg
+sudo apt-get install -y chromium-browser chromium-codecs-ffmpeg
 cd ~/webpage_xscreensaver
 npm i -S puppeteer-core
 
