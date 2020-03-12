@@ -69,7 +69,7 @@ while [ 0 -eq 0 ]; do
     LASTpull=`stat -c %y .git/FETCH_HEAD | awk '{print $1}'`
     DAYSpull=`date -d $LASTpull +"%j"`
     DAYSnow=`date +"%j"`
-    DAYSdiff=$(($DAYSnow - $DAYSpull))
+    DAYSdiff=`expr $DAYSnow - $DAYSpull`
     if [[ $DAYSdiff -ge 7 ]]; then
         #update once a week
         sudo apt update;sudo apt-get -y dist-upgrade;sudo apt -y autoremove
